@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>esheep software</title>
+  <style>
+    :root {
+      --bg-top: #f4f8ff;
+      --bg-bottom: #f9fbf7;
+      --text-main: #1a2232;
+      --text-sub: #52607a;
+      --card-bg: rgba(255, 255, 255, 0.72);
+      --card-border: rgba(29, 47, 79, 0.12);
+      --card-border-hover: rgba(29, 47, 79, 0.28);
+      --focus: #0b5ad8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--text-main);
+      background:
+        radial-gradient(1000px 500px at 15% -15%, #dbe9ff 0%, transparent 72%),
+        radial-gradient(850px 450px at 85% 115%, #dff2e8 0%, transparent 68%),
+        linear-gradient(160deg, var(--bg-top), var(--bg-bottom));
+      font-family: "Segoe UI", "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", sans-serif;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 1fr auto;
+    }
+
+    main {
+      width: min(960px, 92%);
+      margin: 0 auto;
+      padding: 88px 0 56px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+    }
+
+    .lead {
+      margin: 14px 0 0;
+      color: var(--text-sub);
+      font-size: clamp(0.98rem, 1.7vw, 1.1rem);
+      line-height: 1.75;
+    }
+
+    .cards {
+      margin-top: 44px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      display: block;
+      padding: 22px 22px 20px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      text-decoration: none;
+      color: inherit;
+      backdrop-filter: blur(4px);
+      transition: transform 170ms ease, border-color 170ms ease, box-shadow 170ms ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--card-border-hover);
+      box-shadow: 0 10px 24px rgba(26, 34, 50, 0.08);
+    }
+
+    .card:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: clamp(1.2rem, 2.1vw, 1.45rem);
+      letter-spacing: 0.01em;
+    }
+
+    .card p {
+      margin: 10px 0 0;
+      color: var(--text-sub);
+      line-height: 1.7;
+      font-size: 0.97rem;
+    }
+
+    footer {
+      width: min(960px, 92%);
+      margin: 0 auto;
+      padding: 0 0 28px;
+      color: #60708f;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        padding-top: 68px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>esheep software</h1>
+    <p class="lead">開発ソフトウェアの配布サイトです。</p>
+
+    <section class="cards" aria-label="ソフトウェア一覧">
+      <a class="card" href="https://github.com/Ovis/RadiKeep">
+        <h2>RadiKeep</h2>
+        <p>radiko / らじる★らじるの録音・再生・管理を行う、ブラウザ操作の個人向けWebアプリ。</p>
+      </a>
+
+      <a class="card" href="https://github.com/Ovis/VoxArchive">
+        <h2>VoxArchive</h2>
+        <p>スピーカー出力とマイク入力を同時録音し、Whisperで文字起こしできるWindows向けデスクトップアプリ。</p>
+      </a>
+
+      <a class="card" href="https://github.com/Ovis/SilenceScanner">
+        <h2>SilenceScanner</h2>
+        <p>FLACファイル内の無音区間を自動検出し、取り込み状態を簡易チェックできるコマンドラインツール。</p>
+      </a>
+    </section>
+  </main>
+
+  <footer>
+    <small>&copy; 2026 Ovis</small>
+  </footer>
+</body>
+</html>
