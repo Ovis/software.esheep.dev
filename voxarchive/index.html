@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoxArchive | 音声録音・文字起こし</title>
+  <meta name="description" content="VoxArchiveは、スピーカー出力とマイク入力を同時録音し、Whisperによる文字起こしも行えるWindows向けデスクトップアプリです。" />
+  <style>
+    :root {
+      --bg: #f7faf9;
+      --text: #1c2231;
+      --muted: #51607b;
+      --line: #d8e3e8;
+      --panel: #ffffff;
+      --accent: #0f8a5f;
+      --accent-soft: #e7f5ef;
+      --code-bg: #14212c;
+      --code-text: #e3edf7;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "Yu Gothic UI", "Meiryo", sans-serif;
+      color: var(--text);
+      line-height: 1.7;
+      background:
+        linear-gradient(180deg, #edf6f3 0%, transparent 32%),
+        radial-gradient(80vw 60vw at 100% -5%, #dff2e7 0%, transparent 60%),
+        var(--bg);
+    }
+    .container {
+      width: min(1080px, 92%);
+      margin: 0 auto;
+    }
+    .topbar {
+      padding: 16px 0 6px;
+      font-size: 0.92rem;
+    }
+    .topbar a {
+      color: #2b4a61;
+      text-decoration: none;
+    }
+    .topbar a:hover {
+      text-decoration: underline;
+    }
+    .hero {
+      margin-top: 6px;
+    }
+    .hero-main {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 26px 24px;
+      box-shadow: 0 12px 34px rgba(18, 42, 57, 0.08);
+    }
+    .eyebrow {
+      display: inline-block;
+      margin: 0 0 10px;
+      padding: 4px 9px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #0d6b4b;
+      letter-spacing: 0.04em;
+    }
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 4.2vw, 3rem);
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+    }
+    .lead {
+      margin: 12px 0 0;
+      color: var(--muted);
+    }
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-block;
+      text-decoration: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 700;
+      border: 1px solid transparent;
+      transition: transform 140ms ease;
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+    .btn.primary {
+      color: #fff;
+      background: var(--accent);
+    }
+    .btn.ghost {
+      color: #24536f;
+      background: #f5fbff;
+      border-color: #bfd8e8;
+    }
+    main {
+      padding: 20px 0 26px;
+      display: grid;
+      gap: 14px;
+    }
+    .section {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+    }
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.13rem;
+      color: #224c62;
+    }
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .feature-grid {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .feature {
+      background: #fbfefd;
+      border: 1px solid #dde8e6;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .feature h3 {
+      margin: 0 0 6px;
+      font-size: 0.98rem;
+      color: #1d4d67;
+    }
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .carousel-wrap {
+      margin-top: 10px;
+    }
+    .carousel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .carousel-head strong {
+      color: #2b506f;
+      font-size: 0.95rem;
+    }
+    .carousel-controls {
+      display: flex;
+      gap: 8px;
+    }
+    .carousel-btn {
+      border: 1px solid #c8d9e3;
+      background: #f8fcff;
+      color: #224c62;
+      border-radius: 8px;
+      width: 34px;
+      height: 34px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .carousel-btn:hover {
+      background: #eef7fd;
+    }
+    .carousel {
+      overflow: hidden;
+      border-radius: 12px;
+      border: 1px solid #d4e3ea;
+      background: #fdfefe;
+    }
+    .carousel-track {
+      display: flex;
+      transition: transform 220ms ease;
+      will-change: transform;
+    }
+    .carousel-slide {
+      min-width: 100%;
+      margin: 0;
+      padding: 10px;
+    }
+    .carousel-media {
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #d9e5ec;
+      background: #f4f9fd;
+      height: clamp(240px, 50vh, 520px);
+      display: grid;
+      place-items: center;
+    }
+    .carousel-slide img {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      cursor: zoom-in;
+    }
+    .carousel-caption {
+      margin: 8px 2px 2px;
+      color: #2b506f;
+      font-size: 0.92rem;
+    }
+    .carousel-dots {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .carousel-dot {
+      border: 0;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: #bfd4df;
+      cursor: pointer;
+      padding: 0;
+    }
+    .carousel-dot.is-active {
+      background: #2e6785;
+    }
+    .box {
+      background: #fbfefd;
+      border: 1px solid #dde8e6;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .box h3 {
+      margin: 0 0 6px;
+      font-size: 0.98rem;
+      color: #1d4d67;
+    }
+    ol {
+      margin: 0;
+      padding-left: 1.2rem;
+      color: var(--muted);
+    }
+    code {
+      background: #ecf4fb;
+      border: 1px solid #d5e4f2;
+      border-radius: 5px;
+      padding: 1px 5px;
+      font-size: 0.92em;
+    }
+    pre {
+      margin: 10px 0 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--code-bg);
+      color: var(--code-text);
+      overflow-x: auto;
+      font-size: 0.9rem;
+    }
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+    }
+    .footer {
+      border-top: 1px solid #d6e3e1;
+      padding: 22px 0 30px;
+      color: #587083;
+      font-size: 0.9rem;
+    }
+    .footer a {
+      color: #2c5d7b;
+      text-decoration: none;
+    }
+    .footer a:hover {
+      text-decoration: underline;
+    }
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 16, 24, 0.78);
+      display: grid;
+      place-items: center;
+      padding: 22px;
+      z-index: 999;
+    }
+    .lightbox[hidden] {
+      display: none;
+    }
+    .lightbox-panel {
+      position: relative;
+      width: min(1200px, 96vw);
+      max-height: 92vh;
+      border-radius: 12px;
+      padding: 8px;
+      background: rgba(22, 33, 44, 0.95);
+      border: 1px solid #5d7388;
+    }
+    .lightbox-image {
+      display: block;
+      max-width: 100%;
+      max-height: calc(92vh - 16px);
+      width: auto;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 8px;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      border: 0;
+      border-radius: 999px;
+      width: 34px;
+      height: 34px;
+      font-size: 1.2rem;
+      line-height: 1;
+      color: #eff7ff;
+      background: rgba(13, 20, 29, 0.7);
+      cursor: pointer;
+    }
+    .lightbox-close:hover {
+      background: rgba(13, 20, 29, 0.9);
+    }
+    @media (max-width: 920px) {
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+      .split {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="container">
+    <div class="topbar"><a href="/">← トップページへ戻る</a></div>
+    <section class="hero">
+      <div class="hero-main">
+        <h1>VoxArchive</h1>
+        <p class="lead">
+          スピーカー出力とマイク入力を同時録音し、Whisper による文字起こしまで一連で扱える音声アーカイブツールです。<br>
+          記録後の再生・編集・出力も1つのアプリで完結します。
+        </p>
+        <div class="actions">
+          <a class="btn primary" href="https://github.com/Ovis/VoxArchive/releases">最新版をダウンロード</a>
+          <a class="btn ghost" href="https://github.com/Ovis/VoxArchive">GitHub リポジトリ</a>
+        </div>
+      </div>
+    </section>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <h2>スクリーンショット</h2>
+      <div class="carousel-wrap">
+        <div class="carousel-head">
+          <strong>画面イメージ</strong>
+          <div class="carousel-controls">
+            <button type="button" class="carousel-btn" id="carousel-prev" aria-label="前の画像">◀</button>
+            <button type="button" class="carousel-btn" id="carousel-next" aria-label="次の画像">▶</button>
+          </div>
+        </div>
+        <div class="carousel" id="screen-carousel" aria-label="VoxArchive スクリーンショットスライド">
+          <div class="carousel-track" id="carousel-track">
+            <figure class="carousel-slide">
+              <div class="carousel-media">
+                <img src="./assets/mainwindow.jpg" alt="VoxArchive メイン画面" />
+              </div>
+              <figcaption class="carousel-caption">メイン画面</figcaption>
+            </figure>
+            <figure class="carousel-slide">
+              <div class="carousel-media">
+                <img src="./assets/mini-mode.jpg" alt="VoxArchive ミニモード画面" />
+              </div>
+              <figcaption class="carousel-caption">ミニモード</figcaption>
+            </figure>
+            <figure class="carousel-slide">
+              <div class="carousel-media">
+                <img src="./assets/recording.jpg" alt="VoxArchive 録音中画面" />
+              </div>
+              <figcaption class="carousel-caption">録音中画面</figcaption>
+            </figure>
+            <figure class="carousel-slide">
+              <div class="carousel-media">
+                <img src="./assets/library.jpg" alt="VoxArchive ライブラリ画面" />
+              </div>
+              <figcaption class="carousel-caption">ライブラリ画面</figcaption>
+            </figure>
+            <figure class="carousel-slide">
+              <div class="carousel-media">
+                <img src="./assets/mini-mode.jpg" alt="VoxArchive ミニモード画面" />
+              </div>
+              <figcaption class="carousel-caption">ミニモード</figcaption>
+            </figure>
+            <figure class="carousel-slide">
+              <div class="carousel-media">
+                <img src="./assets/settings1.jpg" alt="VoxArchive 設定画面1" />
+              </div>
+              <figcaption class="carousel-caption">設定画面 1</figcaption>
+            </figure>
+            <figure class="carousel-slide">
+              <div class="carousel-media">
+                <img src="./assets/settings2.jpg" alt="VoxArchive 設定画面2" />
+              </div>
+              <figcaption class="carousel-caption">設定画面 2</figcaption>
+            </figure>
+          </div>
+        </div>
+        <div class="carousel-dots" id="carousel-dots" aria-label="スライド選択"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>主な機能</h2>
+      <div class="feature-grid">
+        <article class="feature">
+          <h3>録音</h3>
+          <ul>
+            <li>録音開始 / 一時停止 / 再開 / 停止</li>
+            <li>スピーカーモード / プログラムモード</li>
+            <li>グローバルホットキー対応</li>
+          </ul>
+        </article>
+        <article class="feature">
+          <h3>ライブラリ</h3>
+          <ul>
+            <li>一覧表示、再生、再生速度変更</li>
+            <li>タイトル編集、ファイル名変更</li>
+            <li>モノラル保存（WAV / MP3 / FLAC）</li>
+          </ul>
+        </article>
+        <article class="feature">
+          <h3>文字起こし</h3>
+          <ul>
+            <li>txt / srt / vtt / json 出力</li>
+            <li>CPU / CUDA 優先モード</li>
+            <li>録音後の文字起こし自動実行オプション</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>用語の定義</h2>
+      <div class="split">
+        <article class="box">
+          <h3>スピーカーモード</h3>
+          <p>
+            PC全体のスピーカー出力音を録音するモードです。
+            会議アプリやブラウザ、音楽プレイヤーなど、再生先が同じであればまとめて録音されます。
+          </p>
+        </article>
+        <article class="box">
+          <h3>プログラムモード</h3>
+          <p>
+            指定したプログラム（プロセス）の出力音だけを録音するモードです。
+            ほかのプログラムの音は録音対象に含めず、必要な音声だけを分離して記録したい場合に使います。
+          </p>
+        </article>
+      </div>
+      <div class="split" style="margin-top: 10px;">
+        <article class="box">
+          <h3>同時録音（出力 + マイク）</h3>
+          <p>
+            スピーカー側の音とマイク入力を同時に収録し、1つの音声ファイル内で別チャンネルとして保持しています。<br>
+            これにより、録音前に音量を調整しなくとも録音後にゲインを調整して再生できるようになっています。
+          </p>
+        </article>
+        <article class="box">
+          <h3>Whisper 文字起こし</h3>
+          <p>
+            録音済み音声をWhisperで解析し、テキスト化する機能です。
+            手動実行だけでなく、録音後の自動実行にも対応しています。
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>動作環境と配布形態</h2>
+      <div class="split">
+        <article class="box">
+          <h3>動作環境</h3>
+          <ul>
+            <li>Windows 11</li>
+            <li>.NET 10 Desktop Runtime（fd版）</li>
+            <li>ffmpeg（別途インストール）</li>
+            <li>CUDA Toolkit 13（GPU文字起こし時）</li>
+          </ul>
+        </article>
+        <article class="box">
+          <h3>配布物</h3>
+          <ul>
+            <li>ZIP（自己完結）</li>
+            <li>ZIP（ランタイム非同梱）</li>
+            <li>インストーラー（自己完結）</li>
+            <li>インストーラー（ランタイム非同梱）</li>
+          </ul>
+        </article>
+      </div>
+      <div class="split" style="margin-top: 10px;">
+        <article class="box">
+          <h3>fd版（Framework-dependent）</h3>
+          <ul>
+            <li>.NET Desktop Runtime を別途インストールして利用する版</li>
+            <li>配布サイズを小さくしやすい</li>
+            <li>既にランタイムを導入済みの環境向け</li>
+          </ul>
+        </article>
+        <article class="box">
+          <h3>sc版（Self-contained）</h3>
+          <ul>
+            <li>.NET Runtime 同梱で単体動作する版</li>
+            <li>ランタイムの事前インストールが不要</li>
+            <li>配布サイズは fd 版より大きくなる</li>
+          </ul>
+        </article>
+      </div>
+      <p style="margin-top: 10px;">
+        迷った場合は <strong>sc版</strong> を選ぶとセットアップが簡単です。
+      </p>
+    </section>
+
+    <section class="section">
+      <h2>セットアップ</h2>
+      <ol>
+        <li>リリースページから配布物を取得</li>
+        <li>（インストールしていない場合）ffmpeg をインストール</li>
+        <li><code>VoxArchive.Wpf.exe</code> を起動</li>
+      </ol>
+      <pre><code>winget install Gyan.FFmpeg
+ffmpeg -version</code></pre>
+    </section>
+  </main>
+
+  <footer class="container footer">
+    <a href="/">トップページ</a><br />
+    <strong>VoxArchive</strong><br />
+    GitHub: <a href="https://github.com/Ovis/VoxArchive">https://github.com/Ovis/VoxArchive</a><br />
+    Releases: <a href="https://github.com/Ovis/VoxArchive/releases">https://github.com/Ovis/VoxArchive/releases</a><br />
+    &copy; 2026 Ovis. All rights reserved.
+  </footer>
+
+  <div class="lightbox" id="image-lightbox" hidden aria-hidden="true">
+    <div class="lightbox-panel" role="dialog" aria-modal="true" aria-label="スクリーンショット拡大表示">
+      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="閉じる">×</button>
+      <img id="lightbox-image" class="lightbox-image" alt="" />
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const carousel = document.getElementById("screen-carousel");
+      const track = document.getElementById("carousel-track");
+      const dotsContainer = document.getElementById("carousel-dots");
+      const prevButton = document.getElementById("carousel-prev");
+      const nextButton = document.getElementById("carousel-next");
+
+      if (carousel && track && dotsContainer && prevButton && nextButton) {
+        const slides = Array.from(track.children);
+        let index = 0;
+
+        const renderDots = () => {
+          dotsContainer.innerHTML = "";
+          slides.forEach((_, i) => {
+            const dot = document.createElement("button");
+            dot.type = "button";
+            dot.className = `carousel-dot${i === index ? " is-active" : ""}`;
+            dot.setAttribute("aria-label", `${i + 1}枚目を表示`);
+            dot.addEventListener("click", () => {
+              index = i;
+              update();
+            });
+            dotsContainer.appendChild(dot);
+          });
+        };
+
+        const update = () => {
+          track.style.transform = `translateX(-${index * 100}%)`;
+          renderDots();
+        };
+
+        prevButton.addEventListener("click", () => {
+          index = (index - 1 + slides.length) % slides.length;
+          update();
+        });
+        nextButton.addEventListener("click", () => {
+          index = (index + 1) % slides.length;
+          update();
+        });
+
+        update();
+      }
+
+      const lightbox = document.getElementById("image-lightbox");
+      const lightboxImage = document.getElementById("lightbox-image");
+      const lightboxClose = document.getElementById("lightbox-close");
+      if (!lightbox || !lightboxImage || !lightboxClose) return;
+
+      const openLightbox = (src, alt) => {
+        lightboxImage.src = src;
+        lightboxImage.alt = alt ?? "";
+        lightbox.hidden = false;
+        lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      };
+
+      const closeLightbox = () => {
+        lightbox.hidden = true;
+        lightbox.setAttribute("aria-hidden", "true");
+        lightboxImage.removeAttribute("src");
+        document.body.style.overflow = "";
+      };
+
+      document.querySelectorAll(".carousel-slide img").forEach((img) => {
+        img.addEventListener("click", () => openLightbox(img.currentSrc || img.src, img.alt));
+      });
+
+      lightboxClose.addEventListener("click", closeLightbox);
+      lightbox.addEventListener("click", (event) => {
+        if (event.target === lightbox) {
+          closeLightbox();
+        }
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && !lightbox.hidden) {
+          closeLightbox();
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
